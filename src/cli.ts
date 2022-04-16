@@ -53,6 +53,7 @@ async function processConfigFile(p: string) {
             for (let i = 0; i < Math.min(prevDst.length, outputDir.length); i++) {
                 if (prevDst[i] != outputDir[i]) {
                     newDst = path.join(outputDir, prevDst.substring(i));
+                    if (!fs.existsSync(path.join(newDst, ".."))) fs.mkdirSync(path.join(newDst, ".."), { recursive: true });
                     break;
                 }
             }
