@@ -68,3 +68,9 @@ export async function compile(filePath: string, version = Constants.VERSION, imp
 }
 
 export class CompileError extends Error {}
+
+export * from "./Configuration";
+export * from "./Constants";
+export * from "./TranslatePair";
+export * from "./parser/Matcher";
+export * from "./parser/parse";
