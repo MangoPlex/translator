@@ -1,0 +1,7 @@
+{
+    "include": [
+        "en-us.lang"
+    ],
+    "outputDirectory": "./compile",
+    "gameVersion": "1.19"
+}

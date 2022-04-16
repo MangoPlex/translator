@@ -1,0 +1,32 @@
+{
+  "name": "@mangoplex/translator",
+  "version": "0.0.1",
+  "description": "Helps you translates",
+  "main": "./dist/index.js",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "bin": {
+    "translator": "./dist/cli.js"
+  },
+  "scripts": {
+    "test": "node ./dist/cli.js ./example_proj/example.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MangoPlex/translator.git"
+  },
+  "keywords": [
+    "minecraft",
+    "translate"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/MangoPlex/translator/issues"
+  },
+  "homepage": "https://github.com/MangoPlex/translator#readme",
+  "devDependencies": {
+    "@types/node": "^17.0.24"
+  }
+}
