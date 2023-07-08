@@ -1,5 +1,5 @@
 name: CI Build
-on: [pull_request, push]
+on: [push]
 jobs:
   build-translator:
     name: Build Translator
