@@ -10,7 +10,9 @@
     "translator": "./dist/cli.js"
   },
   "scripts": {
-    "test": "node ./dist/cli.js ./example_proj/example.json"
+    "test": "node ./dist/cli.js ./example_proj/example.json",
+    "build": "tsc -b",
+    "build:watch": "tsc --watch"
   },
   "repository": {
     "type": "git",
@@ -27,6 +29,7 @@
   },
   "homepage": "https://github.com/MangoPlex/translator#readme",
   "devDependencies": {
-    "@types/node": "^17.0.24"
+    "@types/node": "^20.4.1",
+    "typescript": "^5.1.6"
   }
 }
