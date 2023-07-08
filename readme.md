@@ -19,7 +19,7 @@ cat myLang.json
 
 # Build from configuration
 # Configuration allow you to set target version and multiple language files
-# {"include": ["myLang.lang"], "outputDirectory": "./compile", "gameVersion": "1.19"}
+# {"include": ["myLang.lang"], "outputDirectory": "./compile"}
 translator project.json
 cat compile/myLang.json
 ```
@@ -31,10 +31,6 @@ cat compile/myLang.json
 
 import "./localFile.lang";
 import "./compiledFile.json";
-
-// Import from game asset
-// en_us.json only exists inside jar file
-import "#minecraft/lang/en_gb.json";
 
 example.key "Simple entry";
 example.arguments(arg1, arg2) "Argument 2 is " arg2 " and argument 1 is " arg1;
