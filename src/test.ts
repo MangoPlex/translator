@@ -12,6 +12,8 @@ import "./sus.lang";
 /* Comment */
 
 example.first(playerName, arg2) "Hello " /* Comment in da middle! */ playerName " and welcome to our server!";
+example.second "cool";
+example.third;
 `);
 console.log(te);
 

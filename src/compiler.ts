@@ -1,15 +1,18 @@
 import { Parser, Statement } from "./parser";
+import { Token } from "./tokens";
+import { TokensEmitter } from "./tokensemitter";
 import { Translations } from "./translations";
+import * as path from "node:path";
 
 export class Compiler {
-    async resolveImport(path: string): Promise<Translations> {
+    async resolveImport(p: string, importFrom: string): Promise<Translations> {
         throw new Error(`Missing implementation. Please extends Compiler and implement your own resolveImport().`);
     }
 
-    async compileFromStatements(statements: Statement[]): Promise<Translations>;
-    async compileFromStatements(parser: Parser): Promise<Translations>;
-    async compileFromStatements(a: Statement[] | Parser): Promise<Translations> {
-        if (a instanceof Parser) return this.compileFromStatements(a.statements);
+    async compileFromStatements(statements: Statement[], currentPath?: string): Promise<Translations>;
+    async compileFromStatements(parser: Parser, currentPath?: string): Promise<Translations>;
+    async compileFromStatements(a: Statement[] | Parser, currentPath = "."): Promise<Translations> {
+        if (a instanceof Parser) return this.compileFromStatements(a.statements, currentPath);
 
         let result: Translations = {};
 
@@ -17,7 +20,7 @@ export class Compiler {
             const s = a[i];
 
             if (s.type == "import") {
-                const imported = await this.resolveImport(s.path);
+                const imported = await this.resolveImport(s.path, currentPath);
                 for (let key in imported) result[key] = imported[key];
             } else if (s.type == "translation") {
                 result[s.key] = s.line;
@@ -25,5 +28,21 @@ export class Compiler {
         }
 
         return result;
+    }
+
+    async compileFromTokens(tokens: Token[], currentPath?: string): Promise<Translations>;
+    async compileFromTokens(emitter: TokensEmitter, currentPath?: string): Promise<Translations>;
+    async compileFromTokens(a: Token[] | TokensEmitter, currentPath?: string): Promise<Translations> {
+        if (a instanceof TokensEmitter) return this.compileFromTokens(a.tokens, currentPath);
+
+        let parser = new Parser();
+        parser.accept(a);
+        return this.compileFromStatements(parser, currentPath);
+    }
+
+    async compileFromText(text: string, currentPath?: string): Promise<Translations> {
+        let emitter = new TokensEmitter();
+        emitter.accept(text);
+        return this.compileFromTokens(emitter, currentPath);
     }
 }

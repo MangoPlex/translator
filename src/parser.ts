@@ -75,6 +75,8 @@ export class Parser {
                         continue;
                     }
                 }
+            } else {
+                tokens.unshift(next);
             }
 
             while (true) {
