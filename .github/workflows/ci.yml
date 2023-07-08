@@ -1,0 +1,50 @@
+name: CI Build
+on: [pull_request, push]
+jobs:
+  build-translator:
+    name: Build Translator
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 19
+      - run: |
+          npm install
+          npm run build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Translator
+          path: dist/
+  test-build:
+    name: Test 1
+    runs-on: ubuntu-latest
+    needs: [build-translator]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 19
+      - name: Download Translator
+        uses: actions/download-artifact@v3
+        with:
+          name: Translator
+          path: dist/
+      - name: Build example
+        run: node dist/cli.js example/example.json
+      - name: Upload build result
+        uses: actions/upload-artifact@v3
+        with:
+          name: Test Result 1
+          path: example/compile/
+  test-npm-ci:
+    name: Test npm ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 19
+      - run: npm ci
+      - run: npm test

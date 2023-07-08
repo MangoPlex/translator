@@ -10,7 +10,7 @@
     "translator": "./dist/cli.js"
   },
   "scripts": {
-    "test": "node ./dist/cli.js ./example_proj/example.json",
+    "test": "node ./dist/test.js",
     "build": "tsc -b",
     "build:watch": "tsc --watch"
   },
