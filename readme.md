@@ -18,20 +18,64 @@ translator myLang.lang
 cat myLang.json
 
 # Build from configuration
-# Configuration allow you to set target version and multiple language files
+# Configuration allow you to build multiple language files at once
 # {"include": ["myLang.lang"], "outputDirectory": "./compile"}
 translator project.json
 cat compile/myLang.json
 ```
 
 ## Syntax
+### Basic
+```translator
+// This is single-line comment.
+/* This is comment block */
+
+my.key "Translation for key 'my.key'";
+my.emptykey; // Empty key
 ```
-// Comment line
-/* Comment block */
 
-import "./localFile.lang";
-import "./compiledFile.json";
+### Importing from other files
+```translator
+import "./path/to/file.lang";
+import './path/to/file.lang'; // Single quote
+```
 
-example.key "Simple entry";
-example.arguments(arg1, arg2) "Argument 2 is " arg2 " and argument 1 is " arg1;
+### Namespaces
+#### "Declarative" syntax
+```translator
+namespace myglobal.namespace;
+key "The key for this is myglobal.namespace.key";
+
+// Note: You should only use this syntax once for each file.
+// A check that prevents you from adding this multiple times will be implemented in a future.
+```
+
+#### Nested syntax
+```translator
+namespace mynamespace {
+    key "The key is mynamespace.key";
+
+    namespace child {
+        key "The key is mynamespace.child.key";
+    }
+}
+```
+
+#### Mixed
+Of course, you can mix those 2 into a single file:
+
+```translator
+namespace myglobal;
+
+namespace coolnamespace {
+    key "myglobal.coolnamespace";
+}
+
+namespace anotherns {
+    key "myglobal.anotherns";
+
+    namespace child {
+        key "myglobal.anotherns.child.key";
+    }
+}
 ```
