@@ -1,6 +1,12 @@
 import "./en-gb.lang";
 
+namespace mynamespace;
+
 // Comment
 /* Comment */
 example.key "Hello world!";
 example.key2(a1, a2) "abc " a1 a2 " def " a1;
+
+namespace hi {
+    key "mynamespace.hi.key";
+}

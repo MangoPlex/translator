@@ -15,14 +15,23 @@ export interface TranslationStatement extends IStatement<"translation"> {
     line: TranslatedLine;
 }
 
-export type Statement = ImportStatement | TranslationStatement;
+export interface NamespaceDeclare extends IStatement<"namespace-declare"> {
+    name: string;
+}
+
+export interface NamespaceNested extends IStatement<"namespace-nested"> {
+    name: string;
+    children: Statement[];
+}
+
+export type Statement = ImportStatement | TranslationStatement | NamespaceDeclare | NamespaceNested;
 
 export class Parser {
     statements: Statement[] = [];
 
-    accept(tokens: Token[]): void;
+    accept(tokens: Token[], onInvaild?: (tokens: Token[]) => boolean): void;
     accept(emitter: TokensEmitter): void;
-    accept(a: Token[] | TokensEmitter) {
+    accept(a: Token[] | TokensEmitter, onInvaild = (tokens: Token[]) => false) {
         if (a instanceof TokensEmitter) return this.accept(a.tokens);
 
         while (a.length > 0) {
@@ -30,12 +39,14 @@ export class Parser {
 
             if (
                 (statement = this.#acceptImport(a)) ||
+                (statement = this.#acceptNamespace(a)) ||
                 (statement = this.#acceptTranslation(a))
             ) {
                 this.statements.push(statement);
                 continue;
             } else {
-                throw new Error(`Unexpected token: ${a[0].type}`);
+                if (!onInvaild(a)) throw new Error(`Unexpected token: ${a[0].type}`);
+                return;
             }
         }
     }
@@ -50,6 +61,34 @@ export class Parser {
             if (eos.type != "keyword") throw new Error(`Expected keyword but found ${str.type}`);
             if (eos.keyword != "end-of-statement") throw new Error(`Expected end of statement but found ${eos.keyword}`);
             return <Statement> { type: "import", path };
+        }
+    }
+
+    #acceptNamespace(tokens: Token[]) {
+        if (tokens[0].type == "keyword" && tokens[0].keyword == "namespace") {
+            tokens.shift();
+            const a = tokens.shift();
+            if (a.type != "symbol") throw new Error(`Expected symbol but found ${a.type}`);
+            const name = a.name;
+            const b = tokens.shift();
+
+            if (b.type == "bracket" && b.bracket == "spike" && b.mode == "open") {
+                const parser = new Parser();
+                parser.accept(tokens, t => {
+                    if (t[0].type == "bracket" && t[0].bracket == "spike" && t[0].mode == "close") {
+                        t.shift();
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                return <Statement> { type: "namespace-nested", name, children: parser.statements };
+            } else if (b.type == "keyword" && b.keyword == "end-of-statement") {
+                return <Statement> { type: "namespace-declare", name };
+            } else {
+                throw new Error(`Expected ({) or (;) but found ${b.type}`);
+            }
         }
     }
 
