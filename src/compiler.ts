@@ -1,4 +1,4 @@
-import { Parser, Statement } from "./parser";
+import { IStatement, Parser, Statement } from "./parser";
 import { Token } from "./tokens";
 import { TokensEmitter } from "./tokensemitter";
 import { Translations } from "./translations";
@@ -9,10 +9,10 @@ export class Compiler {
         throw new Error(`Missing implementation. Please extends Compiler and implement your own resolveImport().`);
     }
 
-    async compileFromStatements(statements: Statement[], currentPath?: string): Promise<Translations>;
-    async compileFromStatements(parser: Parser, currentPath?: string): Promise<Translations>;
-    async compileFromStatements(a: Statement[] | Parser, currentPath = "."): Promise<Translations> {
-        if (a instanceof Parser) return this.compileFromStatements(a.statements, currentPath);
+    async compileFromStatements(statements: Statement[], keyPrefix?: string, currentPath?: string): Promise<Translations>;
+    async compileFromStatements(parser: Parser, keyPrefix?: string, currentPath?: string): Promise<Translations>;
+    async compileFromStatements(a: Statement[] | Parser, keyPrefix = "", currentPath = "."): Promise<Translations> {
+        if (a instanceof Parser) return this.compileFromStatements(a.statements, keyPrefix, currentPath);
 
         let result: Translations = {};
 
@@ -23,26 +23,33 @@ export class Compiler {
                 const imported = await this.resolveImport(s.path, currentPath);
                 for (let key in imported) result[key] = imported[key];
             } else if (s.type == "translation") {
-                result[s.key] = s.line;
+                result[keyPrefix + s.key] = s.line;
+            } else if (s.type == "namespace-declare") {
+                keyPrefix += s.name + ".";
+            } else if (s.type == "namespace-nested") {
+                const child = await this.compileFromStatements(s.children, keyPrefix + s.name + ".", currentPath);
+                for (let key in child) result[key] = child[key];
+            } else {
+                throw new Error(`Unknown statement: ${(s as IStatement<any>).type}`);
             }
         }
 
         return result;
     }
 
-    async compileFromTokens(tokens: Token[], currentPath?: string): Promise<Translations>;
-    async compileFromTokens(emitter: TokensEmitter, currentPath?: string): Promise<Translations>;
-    async compileFromTokens(a: Token[] | TokensEmitter, currentPath?: string): Promise<Translations> {
-        if (a instanceof TokensEmitter) return this.compileFromTokens(a.tokens, currentPath);
+    async compileFromTokens(tokens: Token[], keyPrefix?: string, currentPath?: string): Promise<Translations>;
+    async compileFromTokens(emitter: TokensEmitter, keyPrefix?: string, currentPath?: string): Promise<Translations>;
+    async compileFromTokens(a: Token[] | TokensEmitter, keyPrefix?: string, currentPath?: string): Promise<Translations> {
+        if (a instanceof TokensEmitter) return this.compileFromTokens(a.tokens, keyPrefix, currentPath);
 
         let parser = new Parser();
         parser.accept(a);
-        return this.compileFromStatements(parser, currentPath);
+        return this.compileFromStatements(parser, keyPrefix, currentPath);
     }
 
-    async compileFromText(text: string, currentPath?: string): Promise<Translations> {
+    async compileFromText(text: string, keyPrefix?: string, currentPath?: string): Promise<Translations> {
         let emitter = new TokensEmitter();
         emitter.accept(text);
-        return this.compileFromTokens(emitter, currentPath);
+        return this.compileFromTokens(emitter, keyPrefix, currentPath);
     }
 }

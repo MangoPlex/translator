@@ -81,7 +81,7 @@ const compiler = new(class extends Compiler {
 
         const fromParent = path.resolve(from, "..");
         const importPath = path.isAbsolute(p)? p : path.resolve(fromParent, p);
-        return await this.compileFromText(await fs.promises.readFile(importPath, "utf-8"), importPath); // TODO: Read from JSON file
+        return await this.compileFromText(await fs.promises.readFile(importPath, "utf-8"), "", importPath); // TODO: Read from JSON file
     }
 })();
 

@@ -9,32 +9,18 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 19
-      - run: |
+      - name: Build Translator
+        run: |
           npm install
           npm run build
-      - name: Upload Artifact
+      - name: Run test (npm)
+        run: npm test
+      - name: Run test (sample project)
+        run: |
+          node ./dist/cli.js example/example.json
+          cat example/compile/en-us.json
+      - name: Upload Translator Artifact
         uses: actions/upload-artifact@v3
         with:
           name: Translator
           path: dist/
-  test-build:
-    name: Test 1
-    runs-on: ubuntu-latest
-    needs: [build-translator]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 19
-      - name: Download Translator
-        uses: actions/download-artifact@v3
-        with:
-          name: Translator
-          path: dist/
-      - name: Build example
-        run: node dist/cli.js example/example.json
-      - name: Upload build result
-        uses: actions/upload-artifact@v3
-        with:
-          name: Test Result 1
-          path: example/compile/

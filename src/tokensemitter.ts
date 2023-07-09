@@ -35,7 +35,7 @@ export class TokensEmitter {
     }
 
     #acceptKeyword(ts: TextStream) {
-        let result = ts.next(/^(import|;|,)/);
+        let result = ts.next(/^(import|namespace|;|,)/);
         if (result) return <Token> { type: "keyword", keyword: mapping[result[0]] ?? result[0] };
         return null;
     }
@@ -76,6 +76,8 @@ export class TokensEmitter {
     #acceptBracket(ts: TextStream) {
         if (ts.next(/^\(/)) return <Token> { type: "bracket", bracket: "round", mode: "open" };
         if (ts.next(/^\)/)) return <Token> { type: "bracket", bracket: "round", mode: "close" };
+        if (ts.next(/^\{/)) return <Token> { type: "bracket", bracket: "spike", mode: "open" };
+        if (ts.next(/^\}/)) return <Token> { type: "bracket", bracket: "spike", mode: "close" };
         return null;
     }
 }
